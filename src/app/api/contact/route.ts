@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { sendContactEmail } from "@/lib/email";
 
 interface ContactPayload {
   name: string;
@@ -30,16 +31,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // In a production environment with email provider configured:
-    // e.g. await sendEmail({ to: process.env.CONTACT_RECEIVER_EMAIL, ... })
-    // For now, securely log transmission details for server observability:
-    console.log("[INQUIRY_RECEIVED]", {
-      timestamp: new Date().toISOString(),
+    // Split comma-separated recipient list from env, e.g.
+    // CONTACT_RECEIVER_EMAIL=hr1@gliaaurre.com,divyam@gliaaurre.com,isha@gliaaurre.com
+    const recipients = (process.env.CONTACT_RECEIVER_EMAIL || "contact@gliaaurre.com")
+      .split(",")
+      .map((addr) => addr.trim())
+      .filter(Boolean);
+
+    await sendContactEmail({
+      to: recipients,
       name,
       email,
       organization,
       inquiryType,
-      messageLength: message.length,
+      message,
     });
 
     return NextResponse.json(

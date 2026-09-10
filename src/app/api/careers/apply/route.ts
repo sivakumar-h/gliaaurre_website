@@ -49,11 +49,16 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(arrayBuffer);
     const resumeBase64 = buffer.toString("base64");
 
-    const ownerEmail = process.env.OWNER_EMAIL || "careers@gliaaurre.com";
+    // Split comma-separated recipient list from env, e.g.
+    // OWNER_EMAIL=hr1@gliaaurre.com,divyam@gliaaurre.com,isha@gliaaurre.com
+    const ownerEmails = (process.env.OWNER_EMAIL || "careers@gliaaurre.com")
+      .split(",")
+      .map((addr) => addr.trim())
+      .filter(Boolean);
 
-    // Dispatch email to website owner
+    // Dispatch email to website owner(s)
     await sendApplicationEmail({
-      to: ownerEmail,
+      to: ownerEmails,
       subject: `[New Candidate Application] ${name} - ${jobTitle}`,
       candidateName: name,
       candidateEmail: email,
