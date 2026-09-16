@@ -54,6 +54,7 @@ export async function sendApplicationEmail(payload: EmailPayload): Promise<{ suc
         body: JSON.stringify({
           from: process.env.FROM_EMAIL || "GliaAurre Careers <careers@gliaaurre.com>",
           to: Array.isArray(to) ? to : [to],
+          reply_to: candidateEmail,
           subject: subject,
           html: `
             <div style="font-family: monospace, sans-serif; background: #08090C; color: #F4F6F8; padding: 24px; border-radius: 8px;">
